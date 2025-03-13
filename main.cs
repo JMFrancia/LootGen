@@ -5,50 +5,7 @@ using System.Collections.Generic;
 
 public class Program
 {
-    static List<LootTable> parseLootTables()
-    {
-        Console.WriteLine("Enter loot table file name (or press RETURN to use loot_table.json):");
-        string jsonPath = Console.ReadLine();
-        if (jsonPath == "")
-        {
-            jsonPath = "test_cases/loot_table.json";
-        }
-
-        string jsonString = "";
-        List<LootTable> lootTables = new List<LootTable>();
-        try
-        {
-            jsonString = File.ReadAllText(jsonPath);
-        }
-        catch
-        {
-            Console.WriteLine("Error reading file " + jsonPath + ".");
-            return null;
-        }
-
-        try
-        {
-            lootTables = JsonSerializer.Deserialize<List<LootTable>>(jsonString);
-        }
-        catch
-        {
-            Console.WriteLine("Error parsing data file " + jsonPath + ". JSON malformed.");
-            return null;
-        }
-
-        foreach (LootTable table in lootTables)
-        {
-            ValidationResult tableResult = table.ValidateTable();
-            if (!tableResult.IsValid)
-            {
-                Console.WriteLine("Error parsing table in " + jsonPath + ": " + tableResult.ErrorMessage);
-                return null;
-            }
-        }
-
-        return lootTables;
-    }
-
+  
     // displays helpful text to stdout
     static void printHelp()
     {
@@ -67,6 +24,8 @@ USAGE
 
     public static void Main(string[] args)
     {
+        var lootTableParser = new LootTableParser();
+      
         // Parse the default loot tables
         List<LootTable> lootTables = parseLootTables();
         if (lootTables == null)
