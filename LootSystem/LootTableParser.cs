@@ -12,6 +12,9 @@ public class LootTableParser {
   private const string ERR_READ_FILE = "Error reading file {0}.";
   private const string ERR_PARSE_DATA = "Error parsing data file {0}. JSON malformed.";
   private const string ERR_PARSE_TABLE = "Error parsing table in {0}: {1}";
+  
+  //TODO: Delete later
+  private const string TEST_JSON_PATH = "C:\\Users\\jmfra\\OneDrive\\Desktop\\LootGen\\test_cases\\loot_table.json";
 
   //Request JSON Path from user
   private string PromptJSONPath() 
@@ -36,8 +39,9 @@ public class LootTableParser {
     {
         jsonString = File.ReadAllText(jsonPath);
     }
-    catch
+    catch(Exception e)
     {
+        Console.WriteLine(e);
         Console.WriteLine(string.Format(ERR_READ_FILE, jsonPath));
         return false;
     }
@@ -56,28 +60,32 @@ public class LootTableParser {
   }
 
   //Run validation on parsed tables
+  //TODO: Support multiple validation errors
   private bool ValidateTables(List<LootTable> lootTables) {
     foreach (LootTable table in lootTables)
     {
         ValidationResult tableResult = table.ValidateTable();
         if (!tableResult.IsValid)
         {
-          Console.WriteLine(string.Format(ERR_PARSE_TABLE, jsonPath, tableResult.ErrorMessage)));
+            //TODO: FIX THIS
+          Console.WriteLine(string.Format(ERR_PARSE_TABLE, "BLAH BLAH", tableResult.ErrorMessage));
           return false;
         }
     }
     return true;
   }
 
+  private bool testMode = true;
+  
   //Prompts user to enter JSON path, parses and returns loot tables accordingly
-  public List<LootTable> parseLootTables()
+  public List<LootTable> ParseLootTables()
   {
-      List<LootTable> lootTables;
+      List<LootTable> lootTables = null;
 
       //Doing it this way gives users infinite chances to try and sort out table issues
       bool tablesParsed = false;
       while(!tablesParsed){
-        string jsonPath = PromptJSONPath();
+        string jsonPath = testMode ? TEST_JSON_PATH : PromptJSONPath();
         if(TryParseLootTables(jsonPath, out lootTables) &&
            ValidateTables(lootTables)) 
         {
