@@ -1,0 +1,29 @@
+Welcome to LootGenerator!
+USAGE
+1. Type commands in the format:
+        <TableName> <count>
+    For example:
+        "CurrencyTable 3"
+    This will generate 3 drops of loot from the Currency table.
+2. Type "exit" to close the program.
+3. Type "help" to see this message again.
+>EquipmentTable 3
+Dropped 1 GoldRing
+Dropped 1 IronSword
+Dropped 2 SilverRing
+>CurrencyTable 10
+Dropped 977 silver
+Dropped 2290 copper
+Dropped 1 platinum
+Dropped 18 gold
+>TreasureChestTable 100
+Dropped 23 GoldRing
+Dropped 6 IronSword
+Dropped 57 SilverRing
+Dropped 47 WoodenShield
+Dropped 42696 silver
+Dropped 122456 copper
+Dropped 75 diamonds
+Dropped 399 platinum
+Dropped 5476 gold
+>exit
