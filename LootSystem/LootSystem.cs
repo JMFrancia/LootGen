@@ -125,7 +125,11 @@ USAGE
         {
             if(LootTableManager.Instance.TryGetLootTable(tableName, out var table)) 
             {
-                table.GenerateLoot(count);
+                var lootCollection = table.GenerateLoot(count);
+                foreach (var loot in lootCollection)
+                {
+                    Console.WriteLine("Dropped {0}", loot);
+                }
             }
             else
             {
