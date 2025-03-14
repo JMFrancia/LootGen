@@ -9,6 +9,6 @@ public class Program
     public static void Main(string[] args)
     {
         var lootSystem = new LootSystem();
-        lootSystem.Execute();
+        lootSystem.Execute(true);
     }
 }
