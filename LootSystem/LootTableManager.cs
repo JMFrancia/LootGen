@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
 
-//Manages the process of parsing a loot table from a JSON, including user I/O
-//TODO: Move all user IO to separate class, focus exclusively on parsing and storing Loot Tables
+//Singleton class that parses and stores loot tables from a JSON  
 public class LootTableManager
 {
     private const string ERR_READ_FILE = "Error reading file {0}.";
@@ -27,12 +25,9 @@ public class LootTableManager
     }
 
     private static LootTableManager _instance;
-
-    private bool testMode = true;
-
     private Dictionary<string, LootTable> _lootTables;
-
-
+    private bool testMode = true;
+    
     //BUG: Trying to parse loot tables and validate them, but checking circular refs is part of validation
     //Wait until parsing is complete to check circular refs
     
@@ -69,8 +64,22 @@ public class LootTableManager
     //TODO: Support multiple validation errors
     private bool ValidateTables(List<LootTable> lootTables)
     {
+        var cachedTableNames = new HashSet<string>();
+        
         foreach (LootTable table in lootTables)
         {
+            //Check if table is a duplicate
+            if (cachedTableNames.Contains(table.TableName))
+            {
+                Console.WriteLine("Duplicate table name {0} found!", table.TableName);
+                return false;
+            }
+            else
+            {
+                cachedTableNames.Add(table.TableName);
+            }
+            
+            //Validate table normally
             ValidationResult tableResult = table.ValidateTable();
             if (!tableResult.IsValid)
             {
@@ -78,7 +87,8 @@ public class LootTableManager
                 return false;
             }
 
-            //TODO: Move this to be part of loot table validation
+            //Check for circular references
+            //NOTE: This is not part of normal table validation because it can't be done properly until all tables are added
             var circularRefCheck = LootTableContainsCircularReference(table);
             if (!circularRefCheck.IsValid)
             {

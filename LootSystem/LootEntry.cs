@@ -6,7 +6,9 @@ using System.Collections.Generic;
 public class LootEntry
 {
   private const string ERR_ENTRYTYPE = "Invalid table entry type {0}";
-  
+  private const string ERR_SELECTION_WEIGHT = "Invalid SelectionWeight value: {0} in EntryName: {1}";
+  private const string ERR_DROP_RATE = "Invalid Min/Max drop rates: {0} must be less or equal to {1} in EntryName: {2]";
+
   // Display name of this Entry
   public string EntryName { get; set; }
   
@@ -43,12 +45,24 @@ public class LootEntry
   //Validates the entry
   public ValidationResult ValidateEntry()
   {
-    if (SelectionWeight <= 0.0f)
+    //Validate that entry type is valid (though error probably already thrown at this point from SetEntryType())
+    if (EntryType != "Item" && EntryType != "Table")
     {
-      return ValidationResult.Error("Invalid SelectionWeight value: " + SelectionWeight + " in EntryName: " + EntryName);
+      return ValidationResult.Error(string.Format("Invalid EntryType value \"{0}\" for Entry: {1}", EntryType, EntryName));
     }
 
-    // TODO: guard against other kinds of invalid property values and add more test cases
+    //Validate selection weight
+    if (SelectionWeight <= 0.0f)
+    {
+      return ValidationResult.Error(string.Format(ERR_SELECTION_WEIGHT, SelectionWeight, EntryName));
+    }
+
+    //Validate drop rate
+    if (MaxDrops < MinDrops)
+    {
+      return ValidationResult.Error(string.Format(ERR_DROP_RATE, MinDrops, MaxDrops, EntryName));
+    }
+    
     return ValidationResult.Valid();
   }
 
@@ -59,10 +73,19 @@ public class LootEntry
     switch (_entryType)
     {
       case LootEntryType.Item:
-        result.Add(GenerateItemLoot());
+        var loot = GenerateItemLoot();
+        Console.WriteLine("DEBUG: Adding loot item " + loot);
+        result.Add(loot);
         break;
       case LootEntryType.Table:
-        result.AddRange(GenerateTableLoot(EntryName));
+        var lootList = GenerateTableLoot(EntryName);
+        var msg = "Debug: Adding loot from table " + EntryName + ": ";
+        foreach (var thisLoot in lootList)
+        {
+          msg += thisLoot + ", ";
+        }
+        Console.WriteLine(msg);
+        result.AddRange(lootList);
         break;
     }
     return result;

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 // A collection of loot entries for generating loot
@@ -42,8 +41,26 @@ public class LootTable
 
   public ValidationResult ValidateTable()
   {
+    var cachedEntries = new HashSet<string>();
     foreach (LootEntry entry in TableEntryCollection)
     {
+      //Check if missing a name (doing this in Table rather than Entry so that we can give more detailed error msg)
+      if (string.IsNullOrEmpty(entry.EntryName))
+      {
+        return ValidationResult.Error(string.Format("LootEntry is missing a name in table {0}", TableName));
+      }
+      
+      //Check if entry is a duplicate
+      if (cachedEntries.Contains(entry.EntryName))
+      {
+        return ValidationResult.Error(string.Format("Duplicate entry {0} found in table {1}", entry.EntryName, TableName));
+      }
+      else
+      {
+        cachedEntries.Add(entry.EntryName);
+      }
+
+      //Validate entry
       ValidationResult entryResult = entry.ValidateEntry();
       if (!entryResult.IsValid)
       {
@@ -69,6 +86,7 @@ public class LootTable
     return result;
   }
 
+  //Generates and returns loot based on weighted random
   private List<Loot> GetWeightedRandomLoot()
   {
     float totalSelectionWeight = TableEntryCollection.Sum(entry => entry.SelectionWeight);
@@ -102,6 +120,7 @@ public class LootTable
     }
   }
 
+  //Generates and returns loot based on Unique Random
   private List<Loot> GetWeightedUniqueRandomLoot()
   {
     //Update cooldowns
@@ -153,27 +172,25 @@ public class LootTable
     return GetUniqueRandomTableEntryCollection()
       .Sum(entry => entry.SelectionWeight);
   }
-
-  //Returns true when a cooldown has expired
-  private bool UpdateUniqueRandomCooldowns()
+  
+  //Updates cooldown counter for all loot entry items
+  private void UpdateUniqueRandomCooldowns()
   {
-    var cooldownExpired = false;
     foreach (var entryKey in _uniqueRandomEntryCooldownDict.Keys)
     {
       _uniqueRandomEntryCooldownDict[entryKey]--;
       if (_uniqueRandomEntryCooldownDict[entryKey] <= 0)
       {
         _uniqueRandomEntryCooldownDict.Remove(entryKey);
-        cooldownExpired = true;
       }
     }
-    return cooldownExpired;
   }
 
   // Generates loot from this table a given number of times
   public List<Loot> GenerateLoot(int count)
   {
     var combinedLoot = new Dictionary<string, Loot>();
+    Console.WriteLine("DEBUG: Generating " + count + " loot drops from " + TableName);
     for (int n = 0; n < count; n++)
     {
       var lootList = _tableType switch
@@ -182,11 +199,16 @@ public class LootTable
         LootTableType.UniqueRandom => GetWeightedUniqueRandomLoot()
       };
       
-      //Merge into like loot if it exists
+      //Merge into like loot if any exists
       foreach(var loot in lootList) {
         if (combinedLoot.ContainsKey(loot.Name))
         {
-          combinedLoot[loot.Name].TryMerge(loot);
+          Console.WriteLine("DEBUG: Merging " + loot + " into " + combinedLoot[loot.Name]);
+          var tmp = combinedLoot[loot.Name];
+          if (tmp.TryMerge(loot))
+          {
+            combinedLoot[loot.Name] = tmp;
+          }
         }
         else
         {
