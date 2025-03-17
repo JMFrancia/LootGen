@@ -10,17 +10,22 @@ public class LootEntry
   // Display name of this Entry
   public string EntryName { get; set; }
   
-  private enum LootEntryType
+  public enum LootEntryType
   {
     Item,
     Table
   }
 
+  //TODO: Do better
   public string EntryType
   {
+    get => _entryType.ToString();
     set => SetEntryType(value);
   }
-    
+
+  //TODO: Do better
+  public LootEntryType GetEntryType => _entryType;
+  
   private LootEntryType _entryType;
 
   // Minimum drop count for this loot entry
@@ -35,6 +40,7 @@ public class LootEntry
   // Should be greater than 0.0
   public float SelectionWeight { get; set; }
   
+  //Validates the entry
   public ValidationResult ValidateEntry()
   {
     if (SelectionWeight <= 0.0f)
@@ -46,6 +52,7 @@ public class LootEntry
     return ValidationResult.Valid();
   }
 
+  //Generates and returns a list of Loot based on the EntryType
   public List<Loot> GenerateLoot()
   {
     List<Loot> result = new List<Loot>();
@@ -61,11 +68,13 @@ public class LootEntry
     return result;
   }
 
+  //Generates loot from this item entry
   private Loot GenerateItemLoot()
   {
     return new Loot(EntryName, GetRandomDropAmount());
   }
 
+  //Pulls table of specified name and generates loot from it
   private List<Loot> GenerateTableLoot(string tableName)
   {
     if(!LootTableManager.Instance.TryGetLootTable(tableName, out var table))
@@ -74,12 +83,14 @@ public class LootEntry
     return table.GenerateLoot(GetRandomDropAmount());
   }
 
+  //Returns a random int between MinDrops and MaxDrops
   private int GetRandomDropAmount()
   {
     Random rnd = new Random();
     return rnd.Next(MinDrops, MaxDrops);
   }
   
+  //Sets the entry type enum from deserialized string
   private void SetEntryType(string entryType)
   {
     if (!Enum.TryParse(entryType, out _entryType))

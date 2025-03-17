@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -32,6 +33,9 @@ public class LootTableManager
     private Dictionary<string, LootTable> _lootTables;
 
 
+    //BUG: Trying to parse loot tables and validate them, but checking circular refs is part of validation
+    //Wait until parsing is complete to check circular refs
+    
     //Try to parse the loot tables
     private bool TryParseLootTables(string jsonPath, out List<LootTable> lootTables)
     {
@@ -73,15 +77,47 @@ public class LootTableManager
                 Console.WriteLine(string.Format(ERR_PARSE_TABLE, table.TableName, tableResult.ErrorMessage));
                 return false;
             }
+
+            //TODO: Move this to be part of loot table validation
+            var circularRefCheck = LootTableContainsCircularReference(table);
+            if (!circularRefCheck.IsValid)
+            {
+                Console.WriteLine(circularRefCheck.ErrorMessage);
+                return false;
+            }
         }
 
         return true;
     }
 
+    //TODO: Move this to inside Loot Table validation
+    //Returns valid if no circular references detected for a specific table
+    public ValidationResult LootTableContainsCircularReference(LootTable table)
+    {
+        var cachedTables = new HashSet<string>(new[] { table.TableName });
+        var tablesToVisit = new Queue<LootTable>(new[] { table });
+        while (tablesToVisit.TryDequeue(out var thisTable))
+        {
+            foreach (var connectedTable in thisTable.GetAllTableTypeEntries())
+            {
+                if (cachedTables.Contains(connectedTable.TableName))
+                {
+                    return ValidationResult.Error(string.Format("Circular table reference detected from loot table {0}", table.TableName));
+                }
+                else
+                {
+                    //TODO: Handle duplicate table-type entries
+                    cachedTables.Add(connectedTable.TableName);
+                    tablesToVisit.Enqueue(connectedTable);
+                }
+            }
+        }
+        return ValidationResult.Valid();
+    }
+
     public bool TryLoadLootTables(string JSONPath)
     {
-        if (TryParseLootTables(JSONPath, out var tables) &&
-            ValidateTables(tables))
+        if (TryParseLootTables(JSONPath, out var tables)) 
         {
             _lootTables = new Dictionary<string, LootTable>();
             foreach (var table in tables)
@@ -89,7 +125,7 @@ public class LootTableManager
                 _lootTables.Add(table.TableName, table);
             }
             Console.WriteLine("Successfully loaded tables from {0}", JSONPath);
-            return true;
+            return ValidateTables(tables); //Done after to account for race condition w/ Circular Ref check
         }
 
         return false;
