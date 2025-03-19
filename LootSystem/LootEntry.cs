@@ -101,7 +101,7 @@ public class LootEntry
   //TODO: This method exists both here and loot table - find common space for both
   private void DisplayDebugMessage(string msg)
   {
-    if (SettingsManager.DISPLAY_DEBUG_MESSAGES)
+    if (SettingsManager.DisplayDebugMessages)
     {
       Console.WriteLine($"Debug: {msg}");
     }

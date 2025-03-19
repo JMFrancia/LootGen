@@ -35,9 +35,6 @@ public class LootTableManager
     private static LootTableManager _instance;
     private Dictionary<string, LootTable> _lootTables;
     
-    //TODO: Remove this
-    private bool testMode = true;
-    
     
     /*
      * Tries to parse loot tables from given jsonPath

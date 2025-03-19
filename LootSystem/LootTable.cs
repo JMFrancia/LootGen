@@ -128,7 +128,8 @@ public class LootTable
       var lootList = _tableType switch
       {
         LootTableType.Random => GetWeightedRandomLoot(),
-        LootTableType.UniqueRandom => GetWeightedUniqueRandomLoot()
+        LootTableType.UniqueRandom => GetWeightedUniqueRandomLoot(),
+        _ => new List<Loot>() //This will never happen, but its good to have a default just in case
       };
       
       //Merge into like loot if any exists
@@ -275,7 +276,7 @@ public class LootTable
   //TODO: Merge this method and the duplicate one from Loot Entry, store elsewhere
   private void DisplayDebugMessage(string msg)
   {
-    if (SettingsManager.DISPLAY_DEBUG_MESSAGES)
+    if (SettingsManager.DisplayDebugMessages)
     {
       Console.WriteLine($"DEBUG: {msg}");
     }
