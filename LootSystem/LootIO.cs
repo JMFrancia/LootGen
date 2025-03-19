@@ -32,7 +32,7 @@ public static class LootIO
     
     private const string MSG_TABLE_LOAD_SUCCESS = "Successfully loaded tables from {0}";
     private const string MSG_LOOT_DROP = "Dropped {0}";
-    private const string PATH_DEFAULT_TABLE = "test_cases/loot_table.json";
+    private const string PATH_DEFAULT_TABLE = "test_cases/valid_loot_table.json";
 
     
     private const string HELP_TXT = @"Welcome to LootGenerator!
