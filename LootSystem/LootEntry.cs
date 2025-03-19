@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 public class LootEntry
 {
-  private const string ERR_ENTRYTYPE = "Invalid table entry type {0}";
+  private const string ERR_ENTRY_TYPE = "Invalid loot entry type \"{0}\"";
   private const string ERR_SELECTION_WEIGHT = "Invalid SelectionWeight value: {0} in EntryName: {1}";
-  private const string ERR_DROP_RATE = "Invalid Min/Max drop rates: {0} must be less or equal to {1} in EntryName: {2]";
+  private const string ERR_DROP_RATE = "Invalid Min/Max drop rates in loot entry {0}: both values must be positive and min rate ({1}) must be lower than max rate ({2})";
 
   // Display name of this Entry
   public string EntryName { get; set; }
@@ -21,7 +21,6 @@ public class LootEntry
   //TODO: Do better
   public string EntryType
   {
-    get => _entryType.ToString();
     set => SetEntryType(value);
   }
 
@@ -41,14 +40,16 @@ public class LootEntry
   // Selection weight for this entry, in arbitrary units
   // Should be greater than 0.0
   public float SelectionWeight { get; set; }
+
+  private bool _entryTypeValid = true;
   
   //Validates the entry
   public ValidationResult ValidateEntry()
   {
     //Validate that entry type is valid (though error probably already thrown at this point from SetEntryType())
-    if (EntryType != "Item" && EntryType != "Table")
+    if (!_entryTypeValid)
     {
-      return ValidationResult.Error(string.Format("Invalid EntryType value \"{0}\" for Entry: {1}", EntryType, EntryName));
+      return ValidationResult.Error(string.Format("Invalid EntryType value for Entry: {0}", EntryName));
     }
 
     //Validate selection weight
@@ -58,9 +59,11 @@ public class LootEntry
     }
 
     //Validate drop rate
-    if (MaxDrops < MinDrops)
+    if (MinDrops < 0 ||
+        MaxDrops < 0 ||
+        MaxDrops < MinDrops)
     {
-      return ValidationResult.Error(string.Format(ERR_DROP_RATE, MinDrops, MaxDrops, EntryName));
+      return ValidationResult.Error(string.Format(ERR_DROP_RATE, EntryName, MinDrops, MaxDrops));
     }
     
     return ValidationResult.Valid();
@@ -116,9 +119,10 @@ public class LootEntry
   //Sets the entry type enum from deserialized string
   private void SetEntryType(string entryType)
   {
-    if (!Enum.TryParse(entryType, out _entryType))
+    _entryTypeValid = Enum.TryParse(entryType, out _entryType);
+    if (!_entryTypeValid)
     {
-      Console.WriteLine(ERR_ENTRYTYPE, entryType);
+      Console.WriteLine(ERR_ENTRY_TYPE, entryType);
     }
   }
 }

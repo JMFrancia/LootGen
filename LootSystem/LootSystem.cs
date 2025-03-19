@@ -6,7 +6,6 @@ namespace main.LootSystem;
 
 public class LootSystem
 {
-    
     #region Constant strings
 
     #region Commands
@@ -29,15 +28,16 @@ public class LootSystem
     private const string ERR_COMMAND_QUANTITY = "Quantity {0} not valid. Please use a whole number.";
     private const string ERR_COMMAND_TABLE_NOT_FOUND = "Table with name {0} not found";
     
+    #endregion
 
     
-    #endregion
-    
+    private const string MSG_TABLE_LOAD_SUCCESS = "Successfully loaded tables from {0}";
+    private const string MSG_LOOT_DROP = "Dropped {0}";
     private const string PATH_DEFAULT_TABLE = "test_cases/loot_table.json";
 
     
     //TODO: Delete later
-    private const string TEST_JSON_PATH = "C:\\Users\\jmfra\\OneDrive\\Desktop\\LootGen\\test_cases\\loot_table.json";
+    private const string TEST_JSON_PATH = "C:\\Users\\jmfra\\OneDrive\\Desktop\\LootGen\\test_cases\\circular_reference.json";
 
     
     private const string HELP_TXT = @"Welcome to LootGenerator!
@@ -73,7 +73,7 @@ USAGE
         return jsonPath;
     }
 
-    private void PromptLoadLootTables(bool testMode)
+    private bool PromptLoadLootTables(bool testMode)
     {
         bool tablesParsed = false;
         while(!tablesParsed){
@@ -81,15 +81,26 @@ USAGE
             if (LootTableManager.Instance.TryLoadLootTables(jsonPath))
             {
                 tablesParsed = true;
+                Console.WriteLine(MSG_TABLE_LOAD_SUCCESS, jsonPath);
+            }
+            else if (testMode)
+            {
+                break;
             }
         }
+
+        return tablesParsed;
     }
 
     public void Execute(bool testMode)
     {
         //Load loot data tables
-        PromptLoadLootTables(testMode);
-        
+        if (!PromptLoadLootTables(testMode))
+        {
+            Console.WriteLine("Failed to load loot tables");
+            return;
+        }
+
         //Display instructions
         DisplayInstructions();
         
@@ -128,7 +139,7 @@ USAGE
                 var lootCollection = table.GenerateLoot(count);
                 foreach (var loot in lootCollection)
                 {
-                    Console.WriteLine("Dropped {0}", loot);
+                    Console.WriteLine(MSG_LOOT_DROP, loot);
                 }
             }
             else

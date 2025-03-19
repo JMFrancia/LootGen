@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
-// A collection of loot entries for generating loot
+/*
+ * A collection of loot entries for generating loot
+ */
 public class LootTable
 {
   private const int UNIQUE_RANDOM_COOLDOWN = 3;
   
-  private const string ERR_TABLETYPE = "Invalid table type {0}";
+  private const string ERR_TABLETYPE = "Invalid table type \"{0}\"";
+  private const string ERR_DUPLICATE_TABLE = "Duplicate entry {0} found in table {1}";
+  private const string ERR_ENTRY_NAME_MISSING = "LootEntry is missing a name in table {0}";
   
   private enum LootTableType
   {
@@ -23,7 +28,8 @@ public class LootTable
 
   private void SetTableType(string tableType)
   {
-    if (!Enum.TryParse(tableType, out _tableType))
+    _tableTypeValid = Enum.TryParse(tableType, out _tableType);
+    if (!_tableTypeValid)
     {
         Console.WriteLine(ERR_TABLETYPE, tableType);
     }
@@ -32,6 +38,7 @@ public class LootTable
   private Dictionary<LootEntry, int> _uniqueRandomEntryCooldownDict = new();
 
   private LootTableType _tableType;
+  private bool _tableTypeValid = true;
 
   // The key used by TableEntries to look up this LootTable
   public string TableName { get; set; }
@@ -39,21 +46,34 @@ public class LootTable
   // The loot entries that can be found in this table
   public List<LootEntry> TableEntryCollection { get; set; }
 
+  /*
+   * Validates table
+   */
   public ValidationResult ValidateTable()
   {
+    if (string.IsNullOrEmpty(TableName))
+    {
+      return ValidationResult.Error("Table is missing a name");
+    }
+
+    if (!_tableTypeValid)
+    {
+      return ValidationResult.Error(string.Format("Invalid table type for table {0}", TableName));
+    }
+
     var cachedEntries = new HashSet<string>();
     foreach (LootEntry entry in TableEntryCollection)
     {
       //Check if missing a name (doing this in Table rather than Entry so that we can give more detailed error msg)
       if (string.IsNullOrEmpty(entry.EntryName))
       {
-        return ValidationResult.Error(string.Format("LootEntry is missing a name in table {0}", TableName));
+        return ValidationResult.Error(string.Format(ERR_ENTRY_NAME_MISSING, TableName));
       }
       
       //Check if entry is a duplicate
       if (cachedEntries.Contains(entry.EntryName))
       {
-        return ValidationResult.Error(string.Format("Duplicate entry {0} found in table {1}", entry.EntryName, TableName));
+        return ValidationResult.Error(string.Format(ERR_DUPLICATE_TABLE, entry.EntryName, TableName));
       }
       else
       {
