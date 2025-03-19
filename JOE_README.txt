@@ -23,6 +23,8 @@ Some other things I would have done given more time:
 
 3. Better detail on error messages for circular table entry references, such printing out entire path of a detected cycle (IE TreasureChestTable -> EquipmentTable -> CurrencyTable -> TreasureChestTable)
 
+4. I had identical debug methods in both LootTable and LootEntry, could have combined them somewhere else
+
 
 
 Thank you for your consideration!

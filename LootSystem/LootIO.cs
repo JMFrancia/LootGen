@@ -42,7 +42,7 @@ USAGE
     //Request JSON Path from user
     private static string PromptJSONPath()
     {
-        var tablePrompt = string.Format(PROMPT_ENTER_TABLE, Path.GetFileName(PATH_DEFAULT_TABLE));
+        var tablePrompt = string.Format(PROMPT_ENTER_TABLE, PATH_DEFAULT_TABLE);
 
         Console.WriteLine(tablePrompt);
         string jsonPath = Console.ReadLine();
