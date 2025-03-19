@@ -1,5 +1,7 @@
 using System;
 
+namespace LootSystem;
+
 public struct Loot
 {
     public string Name;

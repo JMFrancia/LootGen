@@ -3,6 +3,8 @@ using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
 
+namespace LootSystem;
+
 /*
  * Singleton class that parses loot tables from a JSON and stores them, managing access
  */  

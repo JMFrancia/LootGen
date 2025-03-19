@@ -6,4 +6,8 @@
     <StartupObject>Program</StartupObject>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="LootSystem\Constants.cs" />
+  </ItemGroup>
+
 </Project>

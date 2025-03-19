@@ -1,3 +1,5 @@
+namespace LootSystem;
+
 public class ValidationResult
 {
   public static ValidationResult Valid()

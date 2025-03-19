@@ -3,9 +3,12 @@
 using System;
 using System.Collections.Generic;
 
+namespace LootSystem;
+
 public class LootEntry
 {
-  private const string ERR_ENTRY_TYPE = "Invalid loot entry type \"{0}\"";
+  private const string ERR_ENTRY_TYPE = "Invalid EntryType value for Entry: {0}";
+  private const string ERR_ENTRY_TYPE_SET = "Invalid loot entry type \"{0}\"";
   private const string ERR_SELECTION_WEIGHT = "Invalid SelectionWeight value: {0} in EntryName: {1}";
   private const string ERR_DROP_RATE = "Invalid Min/Max drop rates in loot entry {0}: both values must be positive and min rate ({1}) must be lower than max rate ({2})";
 
@@ -18,16 +21,13 @@ public class LootEntry
     Table
   }
 
-  //TODO: Do better
   public string EntryType
   {
     set => SetEntryType(value);
   }
 
-  //TODO: Do better
   public LootEntryType GetEntryType => _entryType;
   
-  private LootEntryType _entryType;
 
   // Minimum drop count for this loot entry
   // Should be greater than zero and less than or equal to MaxDrops
@@ -42,6 +42,7 @@ public class LootEntry
   public float SelectionWeight { get; set; }
 
   private bool _entryTypeValid = true;
+  private LootEntryType _entryType;
   
   //Validates the entry
   public ValidationResult ValidateEntry()
@@ -49,7 +50,7 @@ public class LootEntry
     //Validate that entry type is valid (though error probably already thrown at this point from SetEntryType())
     if (!_entryTypeValid)
     {
-      return ValidationResult.Error(string.Format("Invalid EntryType value for Entry: {0}", EntryName));
+      return ValidationResult.Error(string.Format(ERR_ENTRY_TYPE, EntryName));
     }
 
     //Validate selection weight
@@ -77,21 +78,33 @@ public class LootEntry
     {
       case LootEntryType.Item:
         var loot = GenerateItemLoot();
-        Console.WriteLine("DEBUG: Adding loot item " + loot);
+        DisplayDebugMessage($"Adding loot item {loot}");
         result.Add(loot);
         break;
       case LootEntryType.Table:
         var lootList = GenerateTableLoot(EntryName);
-        var msg = "Debug: Adding loot from table " + EntryName + ": ";
+        
+        //For debugging
+        var msg = $"Adding loot from table {EntryName}:";
         foreach (var thisLoot in lootList)
         {
           msg += thisLoot + ", ";
         }
-        Console.WriteLine(msg);
+        DisplayDebugMessage(msg);
+        
         result.AddRange(lootList);
         break;
     }
     return result;
+  }
+
+  //TODO: This method exists both here and loot table - find common space for both
+  private void DisplayDebugMessage(string msg)
+  {
+    if (SettingsManager.DISPLAY_DEBUG_MESSAGES)
+    {
+      Console.WriteLine($"Debug: {msg}");
+    }
   }
 
   //Generates loot from this item entry
@@ -122,7 +135,7 @@ public class LootEntry
     _entryTypeValid = Enum.TryParse(entryType, out _entryType);
     if (!_entryTypeValid)
     {
-      Console.WriteLine(ERR_ENTRY_TYPE, entryType);
+      Console.WriteLine(ERR_ENTRY_TYPE_SET, entryType);
     }
   }
 }

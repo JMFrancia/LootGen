@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
-namespace main.LootSystem;
+namespace LootSystem;
 
-public class LootSystem
+public static class LootIO
 {
     #region Constant strings
 
@@ -36,10 +35,6 @@ public class LootSystem
     private const string PATH_DEFAULT_TABLE = "test_cases/loot_table.json";
 
     
-    //TODO: Delete later
-    private const string TEST_JSON_PATH = "C:\\Users\\jmfra\\OneDrive\\Desktop\\LootGen\\test_cases\\circular_reference.json";
-
-    
     private const string HELP_TXT = @"Welcome to LootGenerator!
 
 USAGE
@@ -54,13 +49,13 @@ USAGE
 
     #endregion
     
-    private void DisplayInstructions()
+    private static void DisplayInstructions()
     {
         Console.WriteLine(HELP_TXT);
     }
     
     //Request JSON Path from user
-    private string PromptJSONPath() 
+    private static string PromptJSONPath() 
     {
         var tablePrompt = string.Format(PROMPT_ENTER_TABLE, Path.GetFileName(PATH_DEFAULT_TABLE));
     
@@ -73,11 +68,18 @@ USAGE
         return jsonPath;
     }
 
-    private bool PromptLoadLootTables(bool testMode)
+    private static bool PromptLoadLootTables()
     {
         bool tablesParsed = false;
+        bool testMode = SettingsManager.SKIP_PROMPTS_LOCAL_ONLY;
         while(!tablesParsed){
-            string jsonPath = testMode ? TEST_JSON_PATH : PromptJSONPath();
+            
+            //Fetch the jsonPath
+            string jsonPath = testMode ? 
+                SettingsManager.LocalTestJsonPath : 
+                PromptJSONPath();
+            
+            //Attempt to load the loot tables
             if (LootTableManager.Instance.TryLoadLootTables(jsonPath))
             {
                 tablesParsed = true;
@@ -92,10 +94,10 @@ USAGE
         return tablesParsed;
     }
 
-    public void Execute(bool testMode)
+    public static void Execute()
     {
         //Load loot data tables
-        if (!PromptLoadLootTables(testMode))
+        if (!PromptLoadLootTables())
         {
             Console.WriteLine("Failed to load loot tables");
             return;
@@ -114,7 +116,7 @@ USAGE
     
     //Gather user input and attempt to process instructions
     //Return true when program complete
-    private bool ExecuteStep()
+    private static bool ExecuteStep()
     {
         var input = Console.ReadLine();
 
@@ -127,7 +129,7 @@ USAGE
                 Console.WriteLine(HELP_TXT);
                 return false;
             case CMD_RELOAD:
-                PromptLoadLootTables(false);
+                PromptLoadLootTables();
                 DisplayInstructions();
                 return false;
         }
@@ -151,7 +153,7 @@ USAGE
         return false;
     }
 
-    private bool TryParseTableCommand(string input, out string tableName, out int quantity)
+    private static bool TryParseTableCommand(string input, out string tableName, out int quantity)
     {
         tableName = "";
         quantity = 0;

@@ -1,0 +1,71 @@
+[
+  {
+      "TableType" : "UniqueRandom",
+      "TableName" : "LargeUniqueRandom",
+      "TableEntryCollection" : [
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryOne",
+              "MinDrops" : 10,
+              "MaxDrops" : 20,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryTwo",
+              "MinDrops" : 1,
+              "MaxDrops" : 3,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryThree",
+              "MinDrops" : 1,
+              "MaxDrops" : 5,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryFour",
+              "MinDrops" : 10,
+              "MaxDrops" : 20,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryFive",
+              "MinDrops" : 1,
+              "MaxDrops" : 3,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntrySix",
+              "MinDrops" : 1,
+              "MaxDrops" : 5,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntrySeven",
+              "MinDrops" : 10,
+              "MaxDrops" : 20,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryEight",
+              "MinDrops" : 1,
+              "MaxDrops" : 3,
+              "SelectionWeight" : 1
+          },
+          {
+              "EntryType" : "Item",
+              "EntryName" : "EntryNine",
+              "MinDrops" : 1,
+              "MaxDrops" : 5,
+              "SelectionWeight" : 1
+          }
+      ]
+  }
+]
